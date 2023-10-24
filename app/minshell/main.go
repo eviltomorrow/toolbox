@@ -158,7 +158,10 @@ func renderTable(path string) error {
 
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"No", "IP", "NAT-IP", "Port", "User", "Password", "PrivateKey-Path"})
-
+	table.SetFooter([]string{"", "", "", "", "", "Total", fmt.Sprintf("%3d", len(machines))})
+	table.SetFooterAlignment(tablewriter.ALIGN_RIGHT)
+	table.SetBorder(true)
+	table.SetAlignment(tablewriter.ALIGN_RIGHT)
 	for _, v := range data {
 		table.Append(v)
 	}
