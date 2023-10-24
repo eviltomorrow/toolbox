@@ -9,8 +9,6 @@ CEND:=$(shell tput sgr0 2>/dev/null)
 MAINVERSION=$(shell cat version)
 GITSHA := $(shell git rev-parse HEAD)
 BUILDTIME=$(shell date +%FT%T%z)
-REGISTRY=registry.cn-beijing.aliyuncs.com
-ACCOUNT="eviltomorrow"
 
 .PHONY: go_version_check
 GO_VERSION_MIN=1.19
