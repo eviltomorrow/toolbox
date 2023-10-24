@@ -2,6 +2,7 @@ package adapter
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"os/signal"
@@ -86,14 +87,32 @@ func InteractiveWithTerminalForSSH(username, password, privateKey string, host s
 		ssh.TTY_OP_OSPEED: 14400,
 	}
 
-	err = session.RequestPty("xterm", h, w, modes)
+	termType := os.Getenv("TERM")
+	if termType == "" {
+		termType = "xterm-256color"
+	}
+
+	err = session.RequestPty(termType, h, w, modes)
 	if err != nil {
 		return err
 	}
 
-	session.Stdout = os.Stdout
-	session.Stderr = os.Stderr
-	session.Stdin = os.Stdin
+	stdin, err := session.StdinPipe()
+	if err != nil {
+		return err
+	}
+	stdout, err := session.StdoutPipe()
+	if err != nil {
+		return err
+	}
+	stderr, err := session.StderrPipe()
+	if err != nil {
+		return err
+	}
+
+	go io.Copy(os.Stderr, stderr)
+	go io.Copy(os.Stdout, stdout)
+	go io.Copy(stdin, os.Stdin)
 
 	if err = session.Shell(); err != nil {
 		return err
