@@ -96,49 +96,67 @@ func main() {
 				},
 			},
 		},
-		Flags: []cli.Flag{
-			&cli.StringFlag{Name: "file", Aliases: []string{"f"}, Usage: "the machines.xlsx path"},
-		},
 		EnableBashCompletion: true,
 		HideHelpCommand:      true,
 		Action: func(cCtx *cli.Context) error {
 			if cCtx.Args().Len() == 0 {
-				fmt.Println("请查看帮助信息, eg. ./minshell -h")
-				return nil
-			}
+				var machineFile = filepath.Join(system.Runtime.RootDir, "etc", "machines.xlsx")
+				machines, err := assets.LoadFile(machineFile)
+				if err != nil {
+					return err
+				}
 
-			var machineFile = cCtx.String("file")
-			if machineFile == "" {
-				machineFile = filepath.Join(system.Runtime.RootDir, "etc", "machines.xlsx")
-			}
-			machines, err := assets.LoadFile(machineFile)
-			if err != nil {
-				return err
-			}
+				var data = [][]string{}
+				for i, machine := range machines {
+					var line = make([]string, 0, 7)
+					line = append(line, fmt.Sprintf("%3d", i+1))
+					line = append(line, machine.IP)
+					line = append(line, machine.NatIP)
+					line = append(line, fmt.Sprintf("%d", machine.Port))
+					line = append(line, machine.Username)
+					line = append(line, machine.Password)
+					line = append(line, machine.PrivateKey)
+					data = append(data, line)
+				}
 
-			var cond = cCtx.Args().First()
-			machine, err := machines.Find(cond)
-			if err == assets.ErrNotFound {
-				fmt.Println("未找到指定 machine")
-				return nil
-			}
+				table := tablewriter.NewWriter(os.Stdout)
+				table.SetHeader([]string{"No", "IP", "NAT-IP", "Port", "User", "Password", "PrivateKey-Path"})
 
-			greenbold.Printf("==> Prepare to login [%s/%s]\r\n", machine.NatIP, machine.IP)
-			fmt.Println()
+				for _, v := range data {
+					table.Append(v)
+				}
+				table.Render()
+			} else {
+				var machineFile = filepath.Join(system.Runtime.RootDir, "etc", "machines.xlsx")
+				machines, err := assets.LoadFile(machineFile)
+				if err != nil {
+					return err
+				}
 
-			var ip = machine.IP
-			if machine.NatIP != "" && machine.NatIP != "无" {
-				ip = machine.NatIP
-			}
-			var privateKey string
-			if machine.PrivateKey != "" && machine.PrivateKey != "无" {
-				privateKey = machine.PrivateKey
-			}
+				var cond = cCtx.Args().First()
+				machine, err := machines.Find(cond)
+				if err == assets.ErrNotFound {
+					fmt.Println("Error: 未找到指定 machine")
+					return nil
+				}
 
-			if err := adapter.InteractiveWithTerminalForSSH(machine.Username, machine.Password, privateKey, ip, machine.Port, 10*time.Second); err != nil {
-				log.Fatalf("Login resource failure, nest error: %v, resource: %v", err, ip)
+				greenbold.Printf("==> Prepare to login [%s/%s]\r\n", machine.NatIP, machine.IP)
+				fmt.Println()
+
+				var ip = machine.IP
+				if machine.NatIP != "" && machine.NatIP != "无" {
+					ip = machine.NatIP
+				}
+				var privateKey string
+				if machine.PrivateKey != "" && machine.PrivateKey != "无" {
+					privateKey = machine.PrivateKey
+				}
+
+				if err := adapter.InteractiveWithTerminalForSSH(machine.Username, machine.Password, privateKey, ip, machine.Port, 10*time.Second); err != nil {
+					log.Fatalf("Login resource failure, nest error: %v, resource: %v", err, ip)
+				}
+				greenbold.Println("==> Logout")
 			}
-			greenbold.Println("==> Logout")
 			return nil
 		},
 	}
@@ -146,6 +164,7 @@ func main() {
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
 	}
+
 }
 
 var (
