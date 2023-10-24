@@ -119,7 +119,7 @@ func InteractiveWithTerminalForSSH(username, password, privateKey string, host s
 	}
 
 	signal_chan := make(chan os.Signal, 1)
-	signal.Notify(signal_chan, syscall.SIGWINCH, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGHUP)
+	signal.Notify(signal_chan, syscall.SIGWINCH, syscall.SIGQUIT, syscall.SIGTERM)
 	go func() {
 		for {
 			s := <-signal_chan
@@ -129,6 +129,8 @@ func InteractiveWithTerminalForSSH(username, password, privateKey string, host s
 				w, h, _ = term.GetSize(fd)
 				session.WindowChange(h, w)
 			default:
+				session.Signal(ssh.SIGTERM)
+				return
 			}
 		}
 	}()
