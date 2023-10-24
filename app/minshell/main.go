@@ -52,37 +52,8 @@ func main() {
 					&cli.StringFlag{Name: "file", Aliases: []string{"f"}, Usage: "the machines.xlsx path"},
 				},
 				Action: func(cCtx *cli.Context) error {
-					var machineFile = cCtx.String("file")
-					if machineFile == "" {
-						machineFile = filepath.Join(system.Runtime.RootDir, "etc", "machines.xlsx")
-					}
-					machines, err := assets.LoadFile(machineFile)
-					if err != nil {
-						return err
-					}
-
-					var data = [][]string{}
-					for i, machine := range machines {
-						var line = make([]string, 0, 7)
-						line = append(line, fmt.Sprintf("%3d", i+1))
-						line = append(line, machine.IP)
-						line = append(line, machine.NatIP)
-						line = append(line, fmt.Sprintf("%d", machine.Port))
-						line = append(line, machine.Username)
-						line = append(line, machine.Password)
-						line = append(line, machine.PrivateKey)
-						data = append(data, line)
-					}
-
-					table := tablewriter.NewWriter(os.Stdout)
-					table.SetHeader([]string{"No", "IP", "NAT-IP", "Port", "User", "Password", "PrivateKey-Path"})
-
-					for _, v := range data {
-						table.Append(v)
-					}
-					table.Render()
-					return nil
-
+					var path = cCtx.String("file")
+					return renderTable(path)
 				},
 			},
 
@@ -100,32 +71,8 @@ func main() {
 		HideHelpCommand:      true,
 		Action: func(cCtx *cli.Context) error {
 			if cCtx.Args().Len() == 0 {
-				var machineFile = filepath.Join(system.Runtime.RootDir, "etc", "machines.xlsx")
-				machines, err := assets.LoadFile(machineFile)
-				if err != nil {
-					return err
-				}
-
-				var data = [][]string{}
-				for i, machine := range machines {
-					var line = make([]string, 0, 7)
-					line = append(line, fmt.Sprintf("%3d", i+1))
-					line = append(line, machine.IP)
-					line = append(line, machine.NatIP)
-					line = append(line, fmt.Sprintf("%d", machine.Port))
-					line = append(line, machine.Username)
-					line = append(line, machine.Password)
-					line = append(line, machine.PrivateKey)
-					data = append(data, line)
-				}
-
-				table := tablewriter.NewWriter(os.Stdout)
-				table.SetHeader([]string{"No", "IP", "NAT-IP", "Port", "User", "Password", "PrivateKey-Path"})
-
-				for _, v := range data {
-					table.Append(v)
-				}
-				table.Render()
+				var path = cCtx.String("file")
+				return renderTable(path)
 			} else {
 				var machineFile = filepath.Join(system.Runtime.RootDir, "etc", "machines.xlsx")
 				machines, err := assets.LoadFile(machineFile)
@@ -151,17 +98,18 @@ func main() {
 				if machine.NatIP != "" && machine.NatIP != "无" {
 					ip = machine.NatIP
 				}
-				var privateKey string
-				if machine.PrivateKey != "" && machine.PrivateKey != "无" {
-					privateKey = machine.PrivateKey
+				var privateKeyPath string
+				if machine.PrivateKeyPath != "" && machine.PrivateKeyPath != "无" {
+					privateKeyPath = machine.PrivateKeyPath
 				}
 
-				if err := adapter.InteractiveWithTerminalForSSH(machine.Username, machine.Password, privateKey, ip, machine.Port, 10*time.Second); err != nil {
+				if err := adapter.InteractiveWithTerminalForSSH(machine.Username, machine.Password, privateKeyPath, ip, machine.Port, 10*time.Second); err != nil {
 					log.Fatalf("Login resource failure, nest error: %v, resource: %v", err, ip)
 				}
 				greenbold.Println("==> Logout")
+				return nil
 			}
-			return nil
+
 		},
 	}
 
@@ -174,3 +122,46 @@ func main() {
 var (
 	greenbold = color.New(color.FgGreen, color.Bold)
 )
+
+func renderTable(path string) error {
+	var machineFile = path
+	if machineFile == "" {
+		machineFile = filepath.Join(system.Runtime.RootDir, "etc", "machines.xlsx")
+	}
+	machines, err := assets.LoadFile(machineFile)
+	if err != nil {
+		return err
+	}
+
+	var data = [][]string{}
+	for i, machine := range machines {
+		var (
+			password       = "********"
+			privateKeyPath = "********"
+		)
+		if machine.Password == "" || machine.Password == assets.NotExist {
+			password = machine.Password
+		}
+		if machine.PrivateKeyPath == "" || machine.PrivateKeyPath == assets.NotExist {
+			privateKeyPath = machine.PrivateKeyPath
+		}
+		var line = make([]string, 0, 7)
+		line = append(line, fmt.Sprintf("%3d", i+1))
+		line = append(line, machine.IP)
+		line = append(line, machine.NatIP)
+		line = append(line, fmt.Sprintf("%d", machine.Port))
+		line = append(line, machine.Username)
+		line = append(line, password)
+		line = append(line, privateKeyPath)
+		data = append(data, line)
+	}
+
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"No", "IP", "NAT-IP", "Port", "User", "Password", "PrivateKey-Path"})
+
+	for _, v := range data {
+		table.Append(v)
+	}
+	table.Render()
+	return nil
+}

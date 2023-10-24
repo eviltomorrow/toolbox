@@ -15,16 +15,20 @@ var (
 	ErrNotFound = errors.New("not found")
 )
 
+const (
+	NotExist = "无"
+)
+
 type MachineList []*Machine
 
 type Machine struct {
-	NatIP      string        `json:"nat-ip"`
-	IP         string        `json:"ip"`
-	Username   string        `json:"username"`
-	Password   string        `json:"password"`
-	Port       int           `json:"port"`
-	Timeout    time.Duration `json:"timeout"`
-	PrivateKey string        `json:"private-key"`
+	NatIP          string        `json:"nat-ip"`
+	IP             string        `json:"ip"`
+	Username       string        `json:"username"`
+	Password       string        `json:"password"`
+	Port           int           `json:"port"`
+	Timeout        time.Duration `json:"timeout"`
+	PrivateKeyPath string        `json:"private-key-path"`
 }
 
 func LoadFile(path string) (MachineList, error) {
@@ -76,12 +80,12 @@ loop:
 		}
 
 		var machine = &Machine{
-			IP:         line[0],
-			NatIP:      line[1],
-			Port:       int(port),
-			Username:   line[3],
-			Password:   line[4],
-			PrivateKey: line[5],
+			IP:             line[0],
+			NatIP:          line[1],
+			Port:           int(port),
+			Username:       line[3],
+			Password:       line[4],
+			PrivateKeyPath: line[5],
 		}
 		machines = append(machines, machine)
 

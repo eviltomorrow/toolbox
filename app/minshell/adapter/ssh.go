@@ -13,10 +13,14 @@ import (
 	"golang.org/x/term"
 )
 
-func InteractiveWithTerminalForSSH(username, password, privateKey string, host string, port int, timeout time.Duration) error {
+func InteractiveWithTerminalForSSH(username, password, privateKeyPath string, host string, port int, timeout time.Duration) error {
 	var authMethods = make([]ssh.AuthMethod, 0, 4)
-	if privateKey != "" {
-		signer, err := ssh.ParsePrivateKey([]byte(privateKey))
+	if privateKeyPath != "" {
+		pk, err := os.ReadFile(privateKeyPath)
+		if err != nil {
+			return err
+		}
+		signer, err := ssh.ParsePrivateKey([]byte(pk))
 		if err != nil {
 			return err
 		}
