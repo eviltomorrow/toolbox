@@ -139,6 +139,10 @@ func main() {
 					fmt.Println("Error: 未找到指定 machine")
 					return nil
 				}
+				if err != nil {
+					fmt.Printf("Error: 查找主机失败, nest error: %v, input: %v", err, cond)
+					return nil
+				}
 
 				greenbold.Printf("==> Prepare to login [%s/%s]\r\n", machine.NatIP, machine.IP)
 				fmt.Println()
