@@ -52,7 +52,7 @@ func main() {
 					&cli.StringFlag{Name: "file", Aliases: []string{"f"}, Usage: "the machines.xlsx path"},
 				},
 				Action: func(cCtx *cli.Context) error {
-					var path = cCtx.String("file")
+					path := cCtx.String("file")
 					return renderTable(path)
 				},
 			},
@@ -71,16 +71,16 @@ func main() {
 		HideHelpCommand:      true,
 		Action: func(cCtx *cli.Context) error {
 			if cCtx.Args().Len() == 0 {
-				var path = cCtx.String("file")
+				path := cCtx.String("file")
 				return renderTable(path)
 			} else {
-				var machineFile = filepath.Join(system.Runtime.RootDir, "etc", "machines.xlsx")
+				machineFile := filepath.Join(system.Runtime.RootDir, "etc", "machines.xlsx")
 				machines, err := assets.LoadFile(machineFile)
 				if err != nil {
 					return err
 				}
 
-				var cond = cCtx.Args().First()
+				cond := cCtx.Args().First()
 				machine, err := machines.Find(cond)
 				if err == assets.ErrNotFound {
 					fmt.Println("Error: 未找到指定 machine")
@@ -94,7 +94,7 @@ func main() {
 				greenbold.Printf("==> Prepare to login [%s/%s]\r\n", machine.NatIP, machine.IP)
 				fmt.Println()
 
-				var ip = machine.IP
+				ip := machine.IP
 				if machine.NatIP != "" && machine.NatIP != "无" {
 					ip = machine.NatIP
 				}
@@ -104,27 +104,25 @@ func main() {
 				}
 
 				if err := adapter.InteractiveWithTerminalForSSH(machine.Username, machine.Password, privateKeyPath, ip, machine.Port, 10*time.Second); err != nil {
-					log.Fatalf("Login resource failure, nest error: %v, resource: %v", err, ip)
+					greenbold.Printf("==> Fatal: Login resource failure, nest error: %v, resource: %v\r\n", err, ip)
+					fmt.Println()
+					os.Exit(1)
 				}
 				greenbold.Println("==> Logout")
 				return nil
 			}
-
 		},
 	}
 
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
 	}
-
 }
 
-var (
-	greenbold = color.New(color.FgGreen, color.Bold)
-)
+var greenbold = color.New(color.FgGreen, color.Bold)
 
 func renderTable(path string) error {
-	var machineFile = path
+	machineFile := path
 	if machineFile == "" {
 		machineFile = filepath.Join(system.Runtime.RootDir, "etc", "machines.xlsx")
 	}
@@ -133,7 +131,7 @@ func renderTable(path string) error {
 		return err
 	}
 
-	var data = [][]string{}
+	data := [][]string{}
 	for i, machine := range machines {
 		var (
 			password       = "********"
@@ -145,7 +143,7 @@ func renderTable(path string) error {
 		if machine.PrivateKeyPath == "" || machine.PrivateKeyPath == assets.NotExist {
 			privateKeyPath = machine.PrivateKeyPath
 		}
-		var line = make([]string, 0, 7)
+		line := make([]string, 0, 7)
 		line = append(line, fmt.Sprintf("%3d", i+1))
 		line = append(line, machine.IP)
 		line = append(line, machine.NatIP)
