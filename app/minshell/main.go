@@ -83,11 +83,11 @@ func main() {
 				cond := cCtx.Args().First()
 				machine, err := machines.Find(cond)
 				if err == assets.ErrNotFound {
-					fmt.Println("Error: 未找到指定 machine")
+					fmt.Println("==> Error: 未找到指定 machine")
 					return nil
 				}
 				if err != nil {
-					fmt.Printf("Error: 查找主机失败, nest error: %v, input: %v", err, cond)
+					fmt.Printf("==> Error: 查找主机失败, nest error: %v\r\n", err)
 					return nil
 				}
 

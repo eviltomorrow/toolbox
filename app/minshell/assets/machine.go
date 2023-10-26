@@ -11,9 +11,7 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-var (
-	ErrNotFound = errors.New("not found")
-)
+var ErrNotFound = errors.New("not found")
 
 const (
 	NotExist = "无"
@@ -79,7 +77,7 @@ loop:
 			return nil, err
 		}
 
-		var machine = &Machine{
+		machine := &Machine{
 			IP:             line[0],
 			NatIP:          line[1],
 			Port:           int(port),
@@ -97,24 +95,62 @@ loop:
 func (m MachineList) Find(cond string) (*Machine, error) {
 	if no, err := strconv.Atoi(cond); err == nil {
 		if no <= 0 {
-			return nil, fmt.Errorf("invalid no string")
+			goto final
 		}
 		if len(m) < no {
-			return nil, ErrNotFound
+			goto final
 		}
 		return m[no-1], nil
 	}
 
 	if IP := net.ParseIP(cond); IP != nil {
+		machines := make([]*Machine, 0, 4)
 		for _, machine := range m {
 			if machine.NatIP == IP.String() {
-				return machine, nil
+				machines = append(machines, machine)
+				continue
 			}
 			if machine.IP == IP.String() {
-				return machine, nil
+				machines = append(machines, machine)
+				continue
 			}
 		}
+		if len(machines) == 0 {
+			return nil, ErrNotFound
+		}
+		if len(machines) == 1 {
+			return machines[0], nil
+		}
+
+		ipList := make([]string, 0, len(machines))
+		for _, machine := range machines {
+			ipList = append(ipList, machine.IP)
+		}
+		return nil, fmt.Errorf("find multiple machine, ip-list: %v", ipList)
+	}
+
+final:
+	machines := make([]*Machine, 0, 4)
+	for _, machine := range m {
+		if strings.Contains(machine.IP, cond) {
+			machines = append(machines, machine)
+			continue
+		}
+		if strings.Contains(machine.NatIP, cond) {
+			machines = append(machines, machine)
+			continue
+		}
+	}
+	if len(machines) == 0 {
 		return nil, ErrNotFound
 	}
-	return nil, fmt.Errorf("invalid input string")
+	if len(machines) == 1 {
+		return machines[0], nil
+	}
+
+	ipList := make([]string, 0, len(machines))
+	for _, machine := range machines {
+		ipList = append(ipList, machine.IP)
+	}
+	return nil, fmt.Errorf("find multiple machines, IP: [%v]", strings.Join(ipList, ", "))
 }
