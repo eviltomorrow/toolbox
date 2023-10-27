@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/eviltomorrow/toolbox/apps/minshell/adapter"
@@ -112,7 +113,20 @@ func main() {
 					greenbold.Println("==> Logout")
 					return nil
 				}
-				return renderTable(machines, "包含多个 machine")
+
+				machinesWrapper := make([]*assets.Machine, 0, len(machines))
+				for _, machine := range machines {
+					machinesWrapper = append(machinesWrapper, &assets.Machine{
+						NatIP:          strings.ReplaceAll(machine.NatIP, cond, red.Sprintf("%s", cond)),
+						IP:             strings.ReplaceAll(machine.IP, cond, red.Sprintf("%s", cond)),
+						Username:       machine.Username,
+						Password:       machine.Password,
+						Port:           machine.Port,
+						Timeout:        machine.Timeout,
+						PrivateKeyPath: machine.PrivateKeyPath,
+					})
+				}
+				return renderTable(machinesWrapper, "包含多台 machine, 请指定一台 machine")
 			}
 		},
 	}
@@ -122,7 +136,10 @@ func main() {
 	}
 }
 
-var greenbold = color.New(color.FgGreen, color.Bold)
+var (
+	greenbold = color.New(color.FgGreen, color.Bold)
+	red       = color.New(color.FgRed)
+)
 
 func renderTableFromFile(path string) error {
 	machineFile := path
