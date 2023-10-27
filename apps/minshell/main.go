@@ -53,7 +53,7 @@ func main() {
 				},
 				Action: func(cCtx *cli.Context) error {
 					path := cCtx.String("file")
-					return renderTable(path)
+					return renderTableFromFile(path)
 				},
 			},
 
@@ -72,7 +72,7 @@ func main() {
 		Action: func(cCtx *cli.Context) error {
 			if cCtx.Args().Len() == 0 {
 				path := cCtx.String("file")
-				return renderTable(path)
+				return renderTableFromFile(path)
 			} else {
 				machineFile := filepath.Join(system.Runtime.RootDir, "etc", "machines.xlsx")
 				machines, err := assets.LoadFile(machineFile)
@@ -81,7 +81,7 @@ func main() {
 				}
 
 				cond := cCtx.Args().First()
-				machine, err := machines.Find(cond)
+				machines, err = machines.Find(cond)
 				if err == assets.ErrNotFound {
 					fmt.Println("==> Error: 未找到指定 machine")
 					return nil
@@ -90,26 +90,29 @@ func main() {
 					fmt.Printf("==> Error: 查找主机失败, nest error: %v\r\n", err)
 					return nil
 				}
-
-				greenbold.Printf("==> Prepare to login [%s/%s]\r\n", machine.NatIP, machine.IP)
-				fmt.Println()
-
-				ip := machine.IP
-				if machine.NatIP != "" && machine.NatIP != "无" {
-					ip = machine.NatIP
-				}
-				var privateKeyPath string
-				if machine.PrivateKeyPath != "" && machine.PrivateKeyPath != "无" {
-					privateKeyPath = machine.PrivateKeyPath
-				}
-
-				if err := adapter.InteractiveWithTerminalForSSH(machine.Username, machine.Password, privateKeyPath, ip, machine.Port, 10*time.Second); err != nil {
-					greenbold.Printf("==> Fatal: Login resource failure, nest error: %v, resource: %v\r\n", err, ip)
+				if len(machines) == 1 {
+					machine := machines[0]
+					greenbold.Printf("==> Prepare to login [%s/%s]\r\n", machine.NatIP, machine.IP)
 					fmt.Println()
-					os.Exit(1)
+
+					ip := machine.IP
+					if machine.NatIP != "" && machine.NatIP != "无" {
+						ip = machine.NatIP
+					}
+					var privateKeyPath string
+					if machine.PrivateKeyPath != "" && machine.PrivateKeyPath != "无" {
+						privateKeyPath = machine.PrivateKeyPath
+					}
+
+					if err := adapter.InteractiveWithTerminalForSSH(machine.Username, machine.Password, privateKeyPath, ip, machine.Port, 10*time.Second); err != nil {
+						greenbold.Printf("==> Fatal: Login resource failure, nest error: %v, resource: %v\r\n", err, ip)
+						fmt.Println()
+						os.Exit(1)
+					}
+					greenbold.Println("==> Logout")
+					return nil
 				}
-				greenbold.Println("==> Logout")
-				return nil
+				return renderTable(machines, "包含多个 machine")
 			}
 		},
 	}
@@ -121,7 +124,7 @@ func main() {
 
 var greenbold = color.New(color.FgGreen, color.Bold)
 
-func renderTable(path string) error {
+func renderTableFromFile(path string) error {
 	machineFile := path
 	if machineFile == "" {
 		machineFile = filepath.Join(system.Runtime.RootDir, "etc", "machines.xlsx")
@@ -130,32 +133,40 @@ func renderTable(path string) error {
 	if err != nil {
 		return err
 	}
+	return renderTable(machines, "")
+}
 
-	data := [][]string{}
-	for i, machine := range machines {
-		var (
-			password       = "********"
-			privateKeyPath = "********"
-		)
-		if machine.Password == "" || machine.Password == assets.NotExist {
-			password = machine.Password
-		}
-		if machine.PrivateKeyPath == "" || machine.PrivateKeyPath == assets.NotExist {
-			privateKeyPath = machine.PrivateKeyPath
-		}
-		line := make([]string, 0, 7)
-		line = append(line, fmt.Sprintf("%3d", i+1))
-		line = append(line, machine.IP)
-		line = append(line, machine.NatIP)
-		line = append(line, fmt.Sprintf("%d", machine.Port))
-		line = append(line, machine.Username)
-		line = append(line, password)
-		line = append(line, privateKeyPath)
-		data = append(data, line)
-	}
-
+func renderTable(machines []*assets.Machine, desc string) error {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"No", "IP", "NAT-IP", "Port", "User", "Password", "PrivateKey-Path"})
+
+	data := [][]string{}
+	if len(machines) == 0 {
+		data = append(data, []string{"No data"})
+	} else {
+		for i, machine := range machines {
+			var (
+				password       = "********"
+				privateKeyPath = "********"
+			)
+			if machine.Password == "" || machine.Password == assets.NotExist {
+				password = machine.Password
+			}
+			if machine.PrivateKeyPath == "" || machine.PrivateKeyPath == assets.NotExist {
+				privateKeyPath = machine.PrivateKeyPath
+			}
+			line := make([]string, 0, 7)
+			line = append(line, fmt.Sprintf("%3d", i+1))
+			line = append(line, machine.IP)
+			line = append(line, machine.NatIP)
+			line = append(line, fmt.Sprintf("%d", machine.Port))
+			line = append(line, machine.Username)
+			line = append(line, password)
+			line = append(line, privateKeyPath)
+			data = append(data, line)
+		}
+	}
+
 	table.SetFooter([]string{"", "", "", "", "", "Total", fmt.Sprintf("%3d", len(machines))})
 	table.SetFooterAlignment(tablewriter.ALIGN_RIGHT)
 	table.SetBorder(true)
@@ -164,5 +175,8 @@ func renderTable(path string) error {
 		table.Append(v)
 	}
 	table.Render()
+	if desc != "" {
+		greenbold.Printf("==> Warn: %s\r\n\r\n", desc)
+	}
 	return nil
 }

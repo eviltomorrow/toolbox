@@ -92,7 +92,7 @@ loop:
 	return machines, nil
 }
 
-func (m MachineList) Find(cond string) (*Machine, error) {
+func (m MachineList) Find(cond string) ([]*Machine, error) {
 	if no, err := strconv.Atoi(cond); err == nil {
 		if no <= 0 {
 			goto final
@@ -100,7 +100,7 @@ func (m MachineList) Find(cond string) (*Machine, error) {
 		if len(m) < no {
 			goto final
 		}
-		return m[no-1], nil
+		return []*Machine{m[no-1]}, nil
 	}
 
 	if IP := net.ParseIP(cond); IP != nil {
@@ -118,15 +118,7 @@ func (m MachineList) Find(cond string) (*Machine, error) {
 		if len(machines) == 0 {
 			return nil, ErrNotFound
 		}
-		if len(machines) == 1 {
-			return machines[0], nil
-		}
-
-		ipList := make([]string, 0, len(machines))
-		for _, machine := range machines {
-			ipList = append(ipList, machine.IP)
-		}
-		return nil, fmt.Errorf("find multiple machine, ip-list: %v", ipList)
+		return machines, nil
 	}
 
 final:
@@ -144,13 +136,5 @@ final:
 	if len(machines) == 0 {
 		return nil, ErrNotFound
 	}
-	if len(machines) == 1 {
-		return machines[0], nil
-	}
-
-	ipList := make([]string, 0, len(machines))
-	for _, machine := range machines {
-		ipList = append(ipList, machine.IP)
-	}
-	return nil, fmt.Errorf("find multiple machines, IP: [%v]", strings.Join(ipList, ", "))
+	return machines, nil
 }
