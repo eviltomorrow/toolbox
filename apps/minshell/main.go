@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/eviltomorrow/toolbox/app/minshell/adapter"
-	"github.com/eviltomorrow/toolbox/app/minshell/assets"
+	"github.com/eviltomorrow/toolbox/apps/minshell/adapter"
+	"github.com/eviltomorrow/toolbox/apps/minshell/assets"
 	"github.com/eviltomorrow/toolbox/lib/buildinfo"
 	"github.com/eviltomorrow/toolbox/lib/system"
 	"github.com/fatih/color"

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 root_dir=$(pwd)
-app_dir=${root_dir}/app
+app_dir=${root_dir}/apps
 bin_dir=${root_dir}/bin
 
 MAINVERSION=$(cat ${root_dir}/version)
