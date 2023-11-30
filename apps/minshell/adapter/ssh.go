@@ -139,7 +139,8 @@ func InteractiveWithTerminalForSSH(username, password, privateKeyPath string, ho
 		}
 	}()
 
-	return session.Wait()
+	err = session.Wait()
+	return nil
 }
 
 func setKeyboard(password string) func(user, instruction string, questions []string, echos []bool) (answers []string, err error) {
