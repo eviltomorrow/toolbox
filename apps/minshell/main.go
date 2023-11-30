@@ -113,7 +113,7 @@ func main() {
 						privateKeyPath = machine.PrivateKeyPath
 					}
 
-					if err := adapter.InteractiveWithTerminalForSSH(machine.Username, machine.Password, privateKeyPath, ip, machine.Port, 10*time.Second); err != nil {
+					if err := adapter.InteractiveWithTerminalForSSH(machine.Username, machine.Password, privateKeyPath, ip, machine.Port, 10*time.Second, strings.EqualFold(machine.Device, "linux")); err != nil {
 						greenbold.Printf("==> Fatal: Login resource failure, nest error: %v, resource: %v\r\n", err, ip)
 						fmt.Println()
 						os.Exit(1)

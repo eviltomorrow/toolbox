@@ -13,7 +13,7 @@ import (
 	"golang.org/x/term"
 )
 
-func InteractiveWithTerminalForSSH(username, password, privateKeyPath string, host string, port int, timeout time.Duration) error {
+func InteractiveWithTerminalForSSH(username, password, privateKeyPath string, host string, port int, timeout time.Duration, changePS1 bool) error {
 	authMethods := make([]ssh.AuthMethod, 0, 4)
 	if privateKeyPath != "" {
 		pk, err := os.ReadFile(privateKeyPath)
@@ -114,12 +114,24 @@ func InteractiveWithTerminalForSSH(username, password, privateKeyPath string, ho
 		return err
 	}
 
+	go io.Copy(os.Stderr, stderr)
+	go io.Copy(os.Stdout, stdout)
+
 	if err = session.Shell(); err != nil {
 		return err
 	}
 
-	go io.Copy(os.Stderr, stderr)
-	go io.Copy(os.Stdout, stdout)
+	if changePS1 {
+		time.Sleep(1 * time.Second)
+		ps1 := fmt.Sprintf("export PS1=\"[%s] $PS1\"", host)
+		for _, b := range []byte(ps1) {
+			if _, err := stdin.Write([]byte{b}); err != nil {
+				return err
+			}
+		}
+		stdin.Write([]byte{'\r'})
+	}
+
 	go io.Copy(stdin, os.Stdin)
 
 	signal_chan := make(chan os.Signal, 1)

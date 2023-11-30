@@ -27,6 +27,7 @@ type Machine struct {
 	Port           int           `json:"port"`
 	Timeout        time.Duration `json:"timeout"`
 	PrivateKeyPath string        `json:"private-key-path"`
+	Device         string        `json:"device"`
 }
 
 func LoadFile(path string) (MachineList, error) {
@@ -64,7 +65,7 @@ loop:
 			if rowCount == 1 || rowCount == 2 {
 				continue loop
 			}
-			if colCount >= 6 {
+			if colCount >= 7 {
 				break
 			}
 
@@ -84,6 +85,7 @@ loop:
 			Username:       line[3],
 			Password:       line[4],
 			PrivateKeyPath: line[5],
+			Device:         line[6],
 		}
 		machines = append(machines, machine)
 
