@@ -14,7 +14,7 @@ import (
 )
 
 func InteractiveWithTerminalForSSH(username, password, privateKeyPath string, host string, port int, timeout time.Duration) error {
-	var authMethods = make([]ssh.AuthMethod, 0, 4)
+	authMethods := make([]ssh.AuthMethod, 0, 4)
 	if privateKeyPath != "" {
 		pk, err := os.ReadFile(privateKeyPath)
 		if err != nil {
@@ -114,13 +114,13 @@ func InteractiveWithTerminalForSSH(username, password, privateKeyPath string, ho
 		return err
 	}
 
-	go io.Copy(os.Stderr, stderr)
-	go io.Copy(os.Stdout, stdout)
-	go io.Copy(stdin, os.Stdin)
-
 	if err = session.Shell(); err != nil {
 		return err
 	}
+
+	go io.Copy(os.Stderr, stderr)
+	go io.Copy(os.Stdout, stdout)
+	go io.Copy(stdin, os.Stdin)
 
 	signal_chan := make(chan os.Signal, 1)
 	signal.Notify(signal_chan, syscall.SIGWINCH, syscall.SIGQUIT, syscall.SIGTERM)
