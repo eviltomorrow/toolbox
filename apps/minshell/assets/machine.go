@@ -5,11 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/BurntSushi/toml"
+	"github.com/eviltomorrow/toolbox/lib/system"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -38,11 +41,30 @@ func (m *Machine) String() string {
 }
 
 func LoadFile(path string) (MachineList, error) {
-	if strings.HasSuffix(path, ".xlsx") {
-		return loadExcelFile(path)
+	machineFile := strings.TrimSpace(path)
+
+	if machineFile == "" {
+		entries, err := os.ReadDir(filepath.Join(system.Runtime.RootDir, "etc"))
+		if err != nil {
+			return nil, err
+		}
+
+		fs := make([]string, 0, len(entries))
+		for _, entry := range entries {
+			name := entry.Name()
+			fs = append(fs, filepath.Join(system.Runtime.RootDir, "etc", name))
+		}
+
+		if len(fs) == 0 {
+			return nil, fmt.Errorf("no valid machines file")
+		}
+		machineFile = fs[0]
 	}
-	if strings.HasPrefix(path, ".conf") {
-		return LoadTomlFile(path)
+	if strings.HasSuffix(machineFile, ".xlsx") {
+		return loadExcelFile(machineFile)
+	}
+	if strings.HasSuffix(machineFile, ".conf") {
+		return LoadTomlFile(machineFile)
 	}
 	return nil, fmt.Errorf("not support file, path: %v", path)
 }

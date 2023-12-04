@@ -3,10 +3,8 @@ package terminal
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/eviltomorrow/toolbox/apps/minshell/assets"
-	"github.com/eviltomorrow/toolbox/lib/system"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -16,14 +14,11 @@ type Option struct {
 }
 
 func RenderTableFromFile(path string) error {
-	machineFile := path
-	if machineFile == "" {
-		machineFile = filepath.Join(system.Runtime.RootDir, "etc", "machines.xlsx")
-	}
-	machines, err := assets.LoadFile(machineFile)
+	machines, err := assets.LoadFile(path)
 	if err != nil {
 		return err
 	}
+
 	RenderTable(machines, Option{ShowFooter: true})
 	return nil
 }

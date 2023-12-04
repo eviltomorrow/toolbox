@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -12,7 +11,6 @@ import (
 	"github.com/eviltomorrow/toolbox/apps/minshell/assets"
 	"github.com/eviltomorrow/toolbox/apps/minshell/terminal"
 	"github.com/eviltomorrow/toolbox/lib/buildinfo"
-	"github.com/eviltomorrow/toolbox/lib/system"
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
 )
@@ -56,7 +54,7 @@ func main() {
 				Usage:     "显示所有机器列表",
 				UsageText: "./minshell show",
 				Flags: []cli.Flag{
-					&cli.StringFlag{Name: "file", Aliases: []string{"f"}, Usage: "the machines.xlsx path"},
+					&cli.StringFlag{Name: "file", Aliases: []string{"f"}, Usage: "the machines file path"},
 				},
 				Action: func(cCtx *cli.Context) error {
 					path := cCtx.String("file")
@@ -84,8 +82,8 @@ func main() {
 				return terminal.RenderTableFromFile(path)
 
 			default:
-				machineFile := filepath.Join(system.Runtime.RootDir, "etc", "machines.xlsx")
-				machines, err := assets.LoadFile(machineFile)
+				path := cCtx.String("file")
+				machines, err := assets.LoadFile(path)
 				if err != nil {
 					return err
 				}
