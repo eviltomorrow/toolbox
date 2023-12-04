@@ -15,17 +15,23 @@ const (
 
 func main() {
 	if len(os.Args) == 1 {
-		var buf [32 * KB]byte
-		for {
-			n, err := os.Stdin.Read(buf[0:])
-			if err == io.EOF {
-				break
+		fi, err := os.Stdin.Stat()
+		if err != nil {
+			log.Fatal(err)
+		}
+		if fi.Size() > 0 {
+			var buf [32 * KB]byte
+			for {
+				n, err := os.Stdin.Read(buf[0:])
+				if err == io.EOF {
+					break
+				}
+				if err != nil {
+					log.Fatal(err)
+				}
+				data := parseEscapeCharacter(buf[:n])
+				fmt.Print(data)
 			}
-			if err != nil {
-				log.Fatal(err)
-			}
-			data := parseEscapeCharacter(buf[:n])
-			fmt.Print(data)
 		}
 
 	} else {

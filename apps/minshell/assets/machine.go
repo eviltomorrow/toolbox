@@ -1,6 +1,7 @@
 package assets
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net"
@@ -8,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/BurntSushi/toml"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -20,21 +22,41 @@ const (
 type MachineList []*Machine
 
 type Machine struct {
-	NatIP          string        `json:"nat-ip"`
-	IP             string        `json:"ip"`
-	Username       string        `json:"username"`
-	Password       string        `json:"password"`
-	Port           int           `json:"port"`
+	NatIP          string        `toml:"nat-ip" json:"nat-ip"`
+	IP             string        `toml:"ip" json:"ip"`
+	Username       string        `toml:"username" json:"username"`
+	Password       string        `toml:"password" json:"password"`
+	Port           int           `toml:"port" json:"port"`
 	Timeout        time.Duration `json:"timeout"`
-	PrivateKeyPath string        `json:"private-key-path"`
-	Device         string        `json:"device"`
+	PrivateKeyPath string        `toml:"private-key" json:"private-key"`
+	Device         string        `toml:"device" json:"device"`
+}
+
+func (m *Machine) String() string {
+	buf, _ := json.Marshal(m)
+	return string(buf)
 }
 
 func LoadFile(path string) (MachineList, error) {
 	if strings.HasSuffix(path, ".xlsx") {
 		return loadExcelFile(path)
 	}
+	if strings.HasPrefix(path, ".conf") {
+		return LoadTomlFile(path)
+	}
 	return nil, fmt.Errorf("not support file, path: %v", path)
+}
+
+func LoadTomlFile(path string) ([]*Machine, error) {
+	type F struct {
+		Machines []*Machine `toml:"machines" json:"machines"`
+	}
+
+	f := new(F)
+	if _, err := toml.DecodeFile(path, f); err != nil {
+		return nil, err
+	}
+	return f.Machines, nil
 }
 
 func loadExcelFile(path string) ([]*Machine, error) {
