@@ -52,6 +52,8 @@ func InteractiveWithTerminalForSSH(username, password, privateKeyPath string, ho
 				"diffie-hellman-group18-sha512",
 				"diffie-hellman-group14-sha256",
 				"diffie-hellman-group14-sha1",
+				"curve25519-sha256",
+				"kex-strict-s-v00@openssh.com",
 			},
 		},
 		Timeout: timeout,
