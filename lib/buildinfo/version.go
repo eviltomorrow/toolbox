@@ -16,14 +16,14 @@ var (
 )
 
 var (
-	bold     = color.New(color.Bold)
-	bluebold = color.New(color.FgBlue, color.Bold)
+	bluebold  = color.New(color.FgBlue, color.Bold)
+	whitebold = color.New(color.FgWhite, color.Bold)
 )
 
-func GetVersion() string {
+func Version() string {
 	var s1 = bluebold.Sprintf("Version: ")
-	var s2 = bold.Sprintf("%s %s (commit-id=%s)", AppName, MainVersion, GitSha)
+	var s2 = whitebold.Sprintf("%s %s (commit-id=%s)", AppName, MainVersion, GitSha)
 	var s3 = bluebold.Sprintf("Runtime: ")
-	var s4 = bold.Sprintf("%s %s RELEASE.%s", GoVersion, GoOSArch, BuildTime)
+	var s4 = whitebold.Sprintf("%s %s RELEASE.%s", GoVersion, GoOSArch, BuildTime)
 	return s1 + s2 + "\r\n" + s3 + s4
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/eviltomorrow/toolbox/apps/minshell/assets"
 	"github.com/eviltomorrow/toolbox/apps/minshell/terminal"
 	"github.com/eviltomorrow/toolbox/lib/buildinfo"
+	"github.com/eviltomorrow/toolbox/lib/system"
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
 )
@@ -36,6 +37,10 @@ var (
 )
 
 func main() {
+	if err := system.LoadRuntime(); err != nil {
+		log.Fatalf("LoadRuntime failure, nest error: %v", err)
+	}
+
 	app := &cli.App{
 		Name:    buildinfo.AppName,
 		Version: buildinfo.MainVersion,
@@ -67,7 +72,7 @@ func main() {
 				Usage:     "打印版本信息",
 				UsageText: "版本信息",
 				Action: func(cCtx *cli.Context) error {
-					fmt.Println(buildinfo.GetVersion())
+					fmt.Println(buildinfo.Version())
 					return nil
 				},
 			},

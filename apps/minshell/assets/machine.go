@@ -44,7 +44,7 @@ func LoadFile(path string) (MachineList, error) {
 	machineFile := strings.TrimSpace(path)
 
 	if machineFile == "" {
-		entries, err := os.ReadDir(filepath.Join(system.Runtime.RootDir, "etc"))
+		entries, err := os.ReadDir(filepath.Join(system.Directory.RootDir, "etc"))
 		if err != nil {
 			return nil, err
 		}
@@ -52,7 +52,9 @@ func LoadFile(path string) (MachineList, error) {
 		fs := make([]string, 0, len(entries))
 		for _, entry := range entries {
 			name := entry.Name()
-			fs = append(fs, filepath.Join(system.Runtime.RootDir, "etc", name))
+			if strings.HasSuffix(name, ".xlsx") || strings.HasSuffix(name, ".conf") {
+				fs = append(fs, filepath.Join(system.Directory.RootDir, "etc", name))
+			}
 		}
 
 		if len(fs) == 0 {
@@ -66,7 +68,7 @@ func LoadFile(path string) (MachineList, error) {
 	if strings.HasSuffix(machineFile, ".conf") {
 		return LoadTomlFile(machineFile)
 	}
-	return nil, fmt.Errorf("not support file, path: %v", path)
+	return nil, fmt.Errorf("not support file, path: %v, file: %v", path, machineFile)
 }
 
 func LoadTomlFile(path string) ([]*Machine, error) {
