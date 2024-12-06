@@ -7,6 +7,7 @@ toolchain go1.23.3
 require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/fatih/color v1.18.0
+	github.com/google/gopacket v1.1.19
 	github.com/json-iterator/go v1.1.12
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/stretchr/testify v1.10.0

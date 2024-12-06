@@ -36,7 +36,7 @@ function build_app(){
     check0 ${?}
 
     if [ -d ${app_dir}/${1}/etc ]; then
-        cp -rp ${app_dir}/${1}/etc ${bin_dir}/${1}
+        cp -rp ${app_dir}/${1}/conf/etc ${bin_dir}/${1}
         check0 ${?}
     fi
 
