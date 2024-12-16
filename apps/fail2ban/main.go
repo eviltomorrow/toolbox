@@ -1,35 +1,33 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"time"
 
-	"github.com/google/gopacket"
-	"github.com/google/gopacket/pcap"
+	"github.com/eviltomorrow/toolbox/apps/fail2ban/cmd"
+	"github.com/eviltomorrow/toolbox/lib/buildinfo"
+	"github.com/eviltomorrow/toolbox/lib/system"
 )
 
 var (
-	device       string = "enp0s13f0u1"
-	snapshot_len int32  = 1024
-	promiscuous  bool   = false
-	err          error
-	timeout      time.Duration = 30 * time.Second
-	handle       pcap.Handle
+	AppName     = "unknown"
+	MainVersion = "unknown"
+	GitSha      = "unknown"
+	BuildTime   = "unknown"
 )
 
-func main() {
-	// Open device
-	handle, err := pcap.OpenLive(device, snapshot_len, promiscuous, timeout)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer handle.Close()
+func init() {
+	buildinfo.AppName = AppName
+	buildinfo.MainVersion = MainVersion
+	buildinfo.GitSha = GitSha
+	buildinfo.BuildTime = BuildTime
+}
 
-	// Use the handle as a packet source to process all packets
-	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
-	for packet := range packetSource.Packets() {
-		// Process packet here
-		fmt.Println(packet)
+func main() {
+	if err := system.LoadRuntime(); err != nil {
+		log.Fatalf("[F] App: load system runtime failure, nest error: %v", err)
+	}
+
+	if err := cmd.RunApp(); err != nil {
+		log.Fatalf("[F] App: run app failure, nest error: %v", err)
 	}
 }

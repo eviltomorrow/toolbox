@@ -1,0 +1,8 @@
+interface: "enp0s13f0u1"
+rules:
+  - name: "ssh-deny"
+    port: 22
+    duration: "24h"
+
+whitelist:
+  - 127.0.0.1

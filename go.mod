@@ -6,8 +6,11 @@ toolchain go1.23.3
 
 require (
 	github.com/BurntSushi/toml v1.3.2
+	github.com/benbjohnson/clock v1.3.5
+	github.com/coreos/go-iptables v0.8.0
 	github.com/fatih/color v1.18.0
 	github.com/google/gopacket v1.1.19
+	github.com/jessevdk/go-flags v1.6.1
 	github.com/json-iterator/go v1.1.12
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/stretchr/testify v1.10.0
@@ -16,8 +19,10 @@ require (
 	go.opentelemetry.io/otel/trace v1.32.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.29.0
+	golang.org/x/sys v0.27.0
 	golang.org/x/term v0.26.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -39,7 +44,5 @@ require (
 	go.opentelemetry.io/otel v1.32.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/net v0.31.0 // indirect
-	golang.org/x/sys v0.27.0 // indirect
 	golang.org/x/text v0.20.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
