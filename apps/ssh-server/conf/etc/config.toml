@@ -1,0 +1,12 @@
+[server]
+    black-list = [
+        ""
+    ]
+
+    port = 22
+    private-key = ""
+
+[auth]
+    [users.1]
+    username = ""
+    password = ""

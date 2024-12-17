@@ -8,6 +8,7 @@ require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/benbjohnson/clock v1.3.5
 	github.com/coreos/go-iptables v0.8.0
+	github.com/creack/pty v1.1.24
 	github.com/fatih/color v1.18.0
 	github.com/google/gopacket v1.1.19
 	github.com/jessevdk/go-flags v1.6.1
