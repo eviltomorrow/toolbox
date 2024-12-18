@@ -3,10 +3,13 @@
         ""
     ]
 
-    port = 22
-    private-key = ""
+    port = 5050
+    private-key = "./etc/id_ed25519"
 
-[auth]
+[users]
     [users.1]
-    username = ""
-    password = ""
+    username = "root"
+    password = "root"
+
+[log]
+    level = "info"

@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 
 	"github.com/eviltomorrow/toolbox/apps/ssh-server/conf"
+	"github.com/eviltomorrow/toolbox/apps/ssh-server/domain/ssh"
+	"github.com/eviltomorrow/toolbox/apps/ssh-server/domain/user"
 	"github.com/eviltomorrow/toolbox/lib/buildinfo"
 	"github.com/eviltomorrow/toolbox/lib/finalizer"
 	"github.com/eviltomorrow/toolbox/lib/flagsutil"
@@ -53,6 +55,21 @@ func RunApp() error {
 		return fmt.Errorf("read config failure, nest error: %v", err)
 	}
 
+	if err := InitLog(&c.Log); err != nil {
+		return fmt.Errorf("init log failure, nest error: %v", err)
+	}
+
+	user.Load(c.Users)
+
+	server, err := ssh.NewServer(&c.Server)
+	if err != nil {
+		return err
+	}
+	if err := server.Serve(); err != nil {
+		return fmt.Errorf("serve failure, nest error: %v", err)
+	}
+	finalizer.RegisterCleanupFuncs(server.Stop)
+
 	releaseFile, err := procutil.CreatePidFile()
 	if err != nil {
 		return fmt.Errorf("create pid file failure, nest error ;%v", err)
@@ -75,9 +92,9 @@ func RunApp() error {
 	return nil
 }
 
-func InitLog() error {
+func InitLog(log *conf.Log) error {
 	global, prop, err := zlog.InitLogger(&zlog.Config{
-		Level:  "info",
+		Level:  log.Level,
 		Format: "json",
 		File: zlog.FileLogConfig{
 			Filename:    filepath.Join(system.Directory.LogDir, "data.log"),
@@ -87,7 +104,7 @@ func InitLog() error {
 			Compression: "gzip",
 		},
 		DisableStacktrace: true,
-		DisableStdlog:     true,
+		DisableStdlog:     log.DisableStdlog,
 	})
 	if err != nil {
 		return fmt.Errorf("init global log failure, nest error: %v", err)

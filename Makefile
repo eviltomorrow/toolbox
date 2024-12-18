@@ -46,7 +46,7 @@ endif
 .PHONY: clear
 clear:
 	@echo "$(CGREEN)=> Clear ./bin...$(CEND)"
-	@rm -rf bin/king-*
+	@rm -rf bin/*
 
 # mod
 .PHONY: mod

@@ -1,5 +1,7 @@
 package flagsutil
 
+import jsoniter "github.com/json-iterator/go"
+
 var Opts = &Flags{}
 
 type Flags struct {
@@ -10,4 +12,9 @@ type Flags struct {
 	DisableStdlog bool   `long:"disable-stdlog" description:"disable standard logging"`
 
 	Version bool `short:"v" long:"version" description:"show version number"`
+}
+
+func (f *Flags) String() string {
+	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(f)
+	return string(buf)
 }
