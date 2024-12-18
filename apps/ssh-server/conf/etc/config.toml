@@ -4,7 +4,7 @@
     ]
 
     port = 5050
-    private-key = "./etc/id_ed25519"
+    private-key = "~/.ssh/id_rsa"
 
 [users]
     [users.1]

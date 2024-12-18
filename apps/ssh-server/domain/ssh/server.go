@@ -7,7 +7,6 @@ import (
 	"net"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"sync"
 	"syscall"
@@ -16,7 +15,6 @@ import (
 	"github.com/creack/pty"
 	"github.com/eviltomorrow/toolbox/apps/ssh-server/conf"
 	"github.com/eviltomorrow/toolbox/apps/ssh-server/domain/user"
-	"github.com/eviltomorrow/toolbox/lib/system"
 	"github.com/eviltomorrow/toolbox/lib/zlog"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/ssh"
@@ -54,7 +52,7 @@ func NewServer(server *conf.Server) (*Server, error) {
 		},
 	}
 
-	privateKey, err := os.ReadFile(filepath.Join(system.Directory.RootDir, server.PrivateKey))
+	privateKey, err := os.ReadFile(server.PrivateKey)
 	if err != nil {
 		return nil, fmt.Errorf("read private-key failure, nest error: %v", err)
 	}

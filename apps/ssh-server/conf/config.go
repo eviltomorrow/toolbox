@@ -85,7 +85,7 @@ var DefaultConfig = &Config{
 	Server: Server{
 		BlackList:         []string{},
 		Port:              18080,
-		PrivateKey:        "./etc/id_ed25519",
+		PrivateKey:        "~/.ssh/id_rsa",
 		MaximumLoginLimit: 10,
 	},
 	Users: map[string]User{},
