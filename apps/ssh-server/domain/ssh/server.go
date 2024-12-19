@@ -48,11 +48,21 @@ func NewServer(server *conf.Server) (*Server, error) {
 			if ok := user.Auth(username, passowrd); ok {
 				return nil, nil
 			}
-			return nil, fmt.Errorf("login[user=%s] failure", username)
+			return nil, fmt.Errorf("login[user=%s, password=%s] failure", username, passowrd)
 		},
 	}
 
-	privateKey, err := os.ReadFile(server.PrivateKey)
+	path := func() string {
+		if strings.HasPrefix(server.PrivateKey, "~") {
+			dir, err := os.UserHomeDir()
+			if err == nil {
+				return strings.Replace(server.PrivateKey, "~", dir, -1)
+			}
+		}
+
+		return server.PrivateKey
+	}()
+	privateKey, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("read private-key failure, nest error: %v", err)
 	}
@@ -178,8 +188,10 @@ func handleChannel(newChannel ssh.NewChannel) error {
 	}
 	shouldClose := func() {
 		connection.Close()
-		if _, err := bash.Process.Wait(); err != nil {
-			zlog.Error("bash process wait failure", zap.Error(err))
+		if bash.Process != nil {
+			if _, err := bash.Process.Wait(); err != nil {
+				zlog.Error("bash process wait failure", zap.Error(err))
+			}
 		}
 	}
 
