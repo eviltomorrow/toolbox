@@ -60,10 +60,12 @@ func main() {
 				UsageText: "./minshell show",
 				Flags: []cli.Flag{
 					&cli.StringFlag{Name: "file", Aliases: []string{"f"}, Usage: "the machines file path"},
+					&cli.BoolFlag{Name: "print", Aliases: []string{"p"}, Usage: "show password"},
 				},
 				Action: func(cCtx *cli.Context) error {
 					path := cCtx.String("file")
-					return terminal.RenderTableFromFile(path)
+					print := cCtx.Bool("print")
+					return terminal.RenderTableFromFile(path, print)
 				},
 			},
 
@@ -84,7 +86,7 @@ func main() {
 			switch args {
 			case 0:
 				path := cCtx.String("file")
-				return terminal.RenderTableFromFile(path)
+				return terminal.RenderTableFromFile(path, false)
 
 			default:
 				path := cCtx.String("file")

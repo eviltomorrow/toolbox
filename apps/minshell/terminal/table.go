@@ -9,17 +9,18 @@ import (
 )
 
 type Option struct {
+	ShowPassword  bool
 	ShowFooter    bool
 	FooterContent string
 }
 
-func RenderTableFromFile(path string) error {
+func RenderTableFromFile(path string, showPassword bool) error {
 	machines, err := assets.LoadFile(path)
 	if err != nil {
 		return err
 	}
 
-	RenderTable(machines, Option{ShowFooter: true})
+	RenderTable(machines, Option{ShowFooter: true, ShowPassword: showPassword})
 	return nil
 }
 
@@ -41,6 +42,10 @@ func RenderTable(machines []*assets.Machine, option Option) {
 			}
 			if machine.PrivateKeyPath == "" || machine.PrivateKeyPath == assets.NotExist {
 				privateKeyPath = machine.PrivateKeyPath
+			}
+
+			if option.ShowPassword {
+				password = machine.Password
 			}
 			line := make([]string, 0, 7)
 			line = append(line, fmt.Sprintf("%3d", i+1))
