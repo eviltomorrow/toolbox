@@ -15,6 +15,7 @@ import (
 
 func InteractiveWithTerminalForSSH(username, password, privateKeyPath string, host string, port int, timeout time.Duration, changePS1 bool) error {
 	authMethods := make([]ssh.AuthMethod, 0, 4)
+
 	if privateKeyPath != "" {
 		pk, err := os.ReadFile(privateKeyPath)
 		if err != nil {

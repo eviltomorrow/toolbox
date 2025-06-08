@@ -26,11 +26,11 @@ func RenderTableFromFile(path string, showPassword bool) error {
 
 func RenderTable(machines []*assets.Machine, option Option) {
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"No", "IP", "NAT-IP", "Port", "User", "Password", "PrivateKey-Path"})
+	table.SetHeader([]string{"No", "IP", "NAT-IP", "Port", "User", "Password", "PrivateKey-Path", "Device"})
 
 	data := [][]string{}
 	if len(machines) == 0 {
-		data = append(data, []string{"Null", "Null", "Null", "Null", "Null", "Null", "Null"})
+		data = append(data, []string{"Null", "Null", "Null", "Null", "Null", "Null", "Null", "Null"})
 	} else {
 		for i, machine := range machines {
 			var (
@@ -46,7 +46,9 @@ func RenderTable(machines []*assets.Machine, option Option) {
 
 			if option.ShowPassword {
 				password = machine.Password
+				privateKeyPath = machine.PrivateKeyPath
 			}
+
 			line := make([]string, 0, 7)
 			line = append(line, fmt.Sprintf("%3d", i+1))
 			line = append(line, machine.IP)
@@ -55,12 +57,13 @@ func RenderTable(machines []*assets.Machine, option Option) {
 			line = append(line, machine.Username)
 			line = append(line, password)
 			line = append(line, privateKeyPath)
+			line = append(line, machine.Device)
 			data = append(data, line)
 		}
 	}
 
 	if option.ShowFooter {
-		table.SetFooter([]string{"", "", "", "", "", "Total", fmt.Sprintf("%3d", len(machines))})
+		table.SetFooter([]string{"", "", "", "", "", "", "Total", fmt.Sprintf("%3d", len(machines))})
 		table.SetFooterAlignment(tablewriter.ALIGN_RIGHT)
 	}
 

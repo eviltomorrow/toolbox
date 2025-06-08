@@ -114,11 +114,15 @@ func main() {
 						ip = machine.NatIP
 					}
 					var privateKeyPath string
-					if machine.PrivateKeyPath != "" && machine.PrivateKeyPath != "无" {
+					if machine.PrivateKeyPath != "" && machine.PrivateKeyPath != assets.NotExist {
 						privateKeyPath = machine.PrivateKeyPath
 					}
+					var password string
+					if machine.Password != "" && machine.Password != assets.NotExist {
+						password = machine.Password
+					}
 
-					if err := adapter.InteractiveWithTerminalForSSH(machine.Username, machine.Password, privateKeyPath, ip, machine.Port, 10*time.Second, strings.EqualFold(machine.Device, "linux")); err != nil {
+					if err := adapter.InteractiveWithTerminalForSSH(machine.Username, password, privateKeyPath, ip, machine.Port, 10*time.Second, strings.EqualFold(machine.Device, "linux")); err != nil {
 						greenbold.Printf("==> Fatal: Login resource failure, nest error: %v, resource: %v\r\n", err, ip)
 						fmt.Println()
 						os.Exit(1)
