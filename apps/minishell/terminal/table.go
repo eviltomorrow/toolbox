@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/eviltomorrow/toolbox/apps/minshell/assets"
+	"github.com/eviltomorrow/toolbox/apps/minishell/assets"
 	"github.com/olekukonko/tablewriter"
 )
 

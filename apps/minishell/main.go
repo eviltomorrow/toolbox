@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/eviltomorrow/toolbox/apps/minshell/adapter"
-	"github.com/eviltomorrow/toolbox/apps/minshell/assets"
-	"github.com/eviltomorrow/toolbox/apps/minshell/terminal"
+	"github.com/eviltomorrow/toolbox/apps/minishell/adapter"
+	"github.com/eviltomorrow/toolbox/apps/minishell/assets"
+	"github.com/eviltomorrow/toolbox/apps/minishell/terminal"
 	"github.com/eviltomorrow/toolbox/lib/buildinfo"
 	"github.com/eviltomorrow/toolbox/lib/system"
 	"github.com/fatih/color"
@@ -57,7 +57,7 @@ func main() {
 			{
 				Name:      "show",
 				Usage:     "显示所有机器列表",
-				UsageText: "./minshell show",
+				UsageText: "./minishell show",
 				Flags: []cli.Flag{
 					&cli.StringFlag{Name: "file", Aliases: []string{"f"}, Usage: "the machines file path"},
 					&cli.BoolFlag{Name: "print", Aliases: []string{"p"}, Usage: "show password"},
