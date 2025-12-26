@@ -33,6 +33,7 @@ type Machine struct {
 	Timeout        time.Duration `json:"timeout"`
 	PrivateKeyPath string        `toml:"private-key" json:"private-key"`
 	Device         string        `toml:"device" json:"device"`
+	Remark         string        `toml:"remark" json:"remark"`
 }
 
 func (m *Machine) String() string {
@@ -106,12 +107,13 @@ loop:
 		if len(row) > 0 && row[0] == "" {
 			continue
 		}
+
 		for _, col := range row {
 			col = strings.TrimSpace(col)
 			if rowCount == 1 || rowCount == 2 {
 				continue loop
 			}
-			if colCount >= 7 {
+			if colCount >= 8 {
 				break
 			}
 
@@ -132,6 +134,7 @@ loop:
 			Password:       line[4],
 			PrivateKeyPath: line[5],
 			Device:         line[6],
+			Remark:         line[7],
 		}
 		machines = append(machines, machine)
 

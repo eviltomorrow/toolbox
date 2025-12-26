@@ -26,11 +26,11 @@ func RenderTableFromFile(path string, showPassword bool) error {
 
 func RenderTable(machines []*assets.Machine, option Option) {
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"No", "IP", "NAT-IP", "Port", "User", "Password", "PrivateKey-Path", "Device"})
+	table.SetHeader([]string{"No", "IP", "NAT-IP", "Port", "User", "Password", "PrivateKey-Path", "Device", "Remark"})
 
 	data := [][]string{}
 	if len(machines) == 0 {
-		data = append(data, []string{"Null", "Null", "Null", "Null", "Null", "Null", "Null", "Null"})
+		data = append(data, []string{"Null", "Null", "Null", "Null", "Null", "Null", "Null", "Null", "Null"})
 	} else {
 		for i, machine := range machines {
 			var (
@@ -58,12 +58,13 @@ func RenderTable(machines []*assets.Machine, option Option) {
 			line = append(line, password)
 			line = append(line, privateKeyPath)
 			line = append(line, machine.Device)
+			line = append(line, machine.Remark)
 			data = append(data, line)
 		}
 	}
 
 	if option.ShowFooter {
-		table.SetFooter([]string{"", "", "", "", "", "", "Total", fmt.Sprintf("%3d", len(machines))})
+		table.SetFooter([]string{"", "", "", "", "", "", "", "Total", fmt.Sprintf("%3d", len(machines))})
 		table.SetFooterAlignment(tablewriter.ALIGN_RIGHT)
 	}
 
