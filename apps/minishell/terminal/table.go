@@ -32,7 +32,7 @@ func RenderTable(machines []*assets.Machine, option Option) {
 	if len(machines) == 0 {
 		data = append(data, []string{"Null", "Null", "Null", "Null", "Null", "Null", "Null", "Null", "Null"})
 	} else {
-		for i, machine := range machines {
+		for _, machine := range machines {
 			var (
 				password       = "********"
 				privateKeyPath = "********"
@@ -50,7 +50,7 @@ func RenderTable(machines []*assets.Machine, option Option) {
 			}
 
 			line := make([]string, 0, 7)
-			line = append(line, fmt.Sprintf("%3d", i+1))
+			line = append(line, fmt.Sprintf("%3d", machine.Num))
 			line = append(line, machine.IP)
 			line = append(line, machine.NatIP)
 			line = append(line, fmt.Sprintf("%d", machine.Port))

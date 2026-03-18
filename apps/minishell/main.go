@@ -134,6 +134,7 @@ func main() {
 				machinesWrapper := make([]*assets.Machine, 0, len(machines))
 				for _, machine := range machines {
 					machinesWrapper = append(machinesWrapper, &assets.Machine{
+						Num:            machine.Num,
 						NatIP:          strings.ReplaceAll(machine.NatIP, cond, red.Sprintf("%s", cond)),
 						IP:             strings.ReplaceAll(machine.IP, cond, red.Sprintf("%s", cond)),
 						Username:       machine.Username,

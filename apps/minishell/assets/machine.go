@@ -25,6 +25,7 @@ const (
 type MachineList []*Machine
 
 type Machine struct {
+	Num            int           `toml:"num" json:"num"`
 	NatIP          string        `toml:"nat-ip" json:"nat-ip"`
 	IP             string        `toml:"ip" json:"ip"`
 	Username       string        `toml:"username" json:"username"`
@@ -102,7 +103,7 @@ func loadExcelFile(path string) ([]*Machine, error) {
 		machines           = make([]*Machine, 0, 128)
 	)
 loop:
-	for _, row := range rows {
+	for i, row := range rows {
 		rowCount++
 		if len(row) > 0 && row[0] == "" {
 			continue
@@ -127,6 +128,7 @@ loop:
 		}
 
 		machine := &Machine{
+			Num:            i + 1,
 			IP:             line[0],
 			NatIP:          line[1],
 			Port:           int(port),
