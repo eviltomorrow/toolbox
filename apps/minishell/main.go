@@ -96,6 +96,7 @@ func main() {
 				}
 				cond := cCtx.Args().First()
 				machines, err = machines.Find(cond)
+
 				if err == assets.ErrNotFound {
 					redbold.Println("==> Error: 未找到指定 machine")
 					return nil
@@ -142,6 +143,8 @@ func main() {
 						Port:           machine.Port,
 						Timeout:        machine.Timeout,
 						PrivateKeyPath: machine.PrivateKeyPath,
+						Device:         machine.Device,
+						Remark:         machine.Remark,
 					})
 				}
 				terminal.RenderTable(machinesWrapper, terminal.Option{FooterContent: greenbold.Sprintf("==> Warn: 包含多台 machine, 请指定一台 machine")})

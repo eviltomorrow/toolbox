@@ -128,7 +128,7 @@ loop:
 		}
 
 		machine := &Machine{
-			Num:            i + 1,
+			Num:            i - 1,
 			IP:             line[0],
 			NatIP:          line[1],
 			Port:           int(port),
